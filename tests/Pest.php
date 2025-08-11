@@ -12,7 +12,6 @@
 */
 
 pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
 /*
@@ -41,7 +40,14 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function loginWithOtp(string $host, string $identifier = 'user@example.com', string $code = '123456'): string
 {
-    // ..
+    \Illuminate\Support\Facades\Cache::put('otp:code:'.$identifier, \Illuminate\Support\Facades\Hash::make($code), now()->addMinutes(10));
+    $resp = test()->withHeaders(['Host' => $host])
+        ->postJson('/api/v1/auth/otp/verify', [
+            'identifier' => $identifier,
+            'code' => $code,
+        ]);
+    $resp->assertOk();
+    return $resp->json('token');
 }
