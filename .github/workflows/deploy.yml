@@ -1,0 +1,44 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main, develop-deploy-to-vps-workflow ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Add host to known hosts
+          PORT="${{ secrets.DEPLOY_VPS_PORT }}"
+          PORT=${PORT:-22}
+          ssh-keyscan -p "$PORT" "${{ secrets.DEPLOY_VPS_HOST }}" >> ~/.ssh/known_hosts
+          
+          # Create SSH config with passphrase support
+          echo "Host deploy-target
+            HostName ${{ secrets.DEPLOY_VPS_HOST }}
+            User ${{ secrets.DEPLOY_VPS_USER }}
+            Port $PORT
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes" > ~/.ssh/config
+
+      - name: Setup SSH agent with passphrase
+        shell: bash
+        run: |
+          eval $(ssh-agent -s)
+          echo "${{ secrets.DEPLOY_VPS_SSH_PASSPHRASE }}" | ssh-add -p ~/.ssh/deploy_key
+
+      - name: Pull latest code on VPS
+        shell: bash
+        env:
+          REPO_PATH: ${{ secrets.DEPLOY_VPS_REPO_PATH }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          ssh deploy-target "cd \"$REPO_PATH\" && git pull origin \"$BRANCH\""
+
+
