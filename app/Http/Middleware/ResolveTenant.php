@@ -20,7 +20,7 @@ class ResolveTenant
 
         $tenant = $this->findTenantByHost($host);
         if (!$tenant || !$tenant->is_active) {
-            abort(404);
+            abort(404, !app()->environment('PRODUCTION') ? "No tenant found for $host" : '');
         }
 
         app()->instance(TenantContext::class, new TenantContext($tenant));
