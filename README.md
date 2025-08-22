@@ -5,7 +5,7 @@
 To run this project, you need the following PHP 8.4 packages:
 
 ```bash
-sudo apt install php8.4 php8.4-cli php8.4-common php8.4-mbstring php8.4-mysql php8.4-opcache php8.4-readline php8.4-sqlite3 php8.4-xml
+sudo apt install zip php8.4 php8.4-cli php8.4-fpm php8.4-common php8.4-mbstring php8.4-mysql php8.4-opcache php8.4-readline php8.4-sqlite3 php8.4-xml
 ```
 
 ## Installation
