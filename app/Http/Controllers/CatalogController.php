@@ -48,13 +48,12 @@ class CatalogController extends Controller
             ->with(['item', 'item.media'])
             ->orderBy('sort_order')
             ->paginate(20);
-        
         return response()->json([
             'data' => $featured->map(function ($item) {
                 $resource = match($item->item_type) {
-                    'App\\Domain\\Catalog\\Entities\\Service' => new ServiceResource($item->item),
-                    'App\\Domain\\Catalog\\Entities\\Category' => new CategoryResource($item->item),
-                    'App\\Domain\\Catalog\\Entities\\Specialist' => new SpecialistResource($item->item),
+                    'App\Models\Service' => new ServiceResource($item->item),
+                    'App\Models\Category' => new CategoryResource($item->item),
+                    'App\Models\Specialist' => new SpecialistResource($item->item),
                     default => null,
                 };
                 return [
